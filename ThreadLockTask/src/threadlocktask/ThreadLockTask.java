@@ -9,6 +9,7 @@ package threadlocktask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
@@ -49,22 +50,30 @@ class WorkWData implements Runnable {
 
 class Data {
     int count=1;
-
+    final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     int read(){
+        rwl.readLock().lock();
         try {
             int n = count;
             TimeUnit.MILLISECONDS.sleep(100);
             count=n;
         } catch (InterruptedException ex) { }
+        finally {
+            rwl.readLock().unlock();
+        }
         return count;
     }
     void write(){
+        rwl.writeLock().lock();
         try {
             int n = count;
             TimeUnit.MILLISECONDS.sleep(100);
             n++;
             count=n;
         } catch (InterruptedException ex) { }
+        finally {
+            rwl.writeLock().unlock();
+        }
     }
     
 }
